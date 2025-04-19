@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+#Plan whqat to use this script to
+# Plan how to use thos script
+
+For now, skapa istället småskript,
+
+
+arg="${1}"
+new_branch="${2}"
+existing_branch="${3}"
+
+if [[ ${arg} == "" ]]; then
+    echo "Please tell what to do"
+    exit 1
+fi 
+
+
+grep -q "^main$" <<< "$branches" && echo "Branch exists"
+current_branches="$(git branch -a --format='%(refname:short)' | sed 's|origin/||g' | grep -v "HEAD" | sort -u)"
+[[ -n "${current_branches[$new_branch]}" ]] echo "Branch $new_branch already exists" && exit 1
+[[ -z "${current_branches[$existing_branch]}" ]] echo "Branch $existing_branch does not  exists" && exit 1
+
+
+
+if [[ ${new_branch_name} == "" ]]; then
+    new_branch_name="feature/${arg}"
+fi
+
+git checkout "${existing_branch_name}"
+git checkout -b "${new_branch_name}"
+git add .
+git commit -m "${arg}"
+git push origin "${new_branch_name}"
+
+# git checkout "${existing_branch_name}"
+
+
