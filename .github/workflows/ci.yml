@@ -1,0 +1,31 @@
+name: Validate Copilot-style Patches
+
+on:
+  pull_request:
+    paths:
+      - '**/*.py'
+      - '**/*.json'
+      - '.githooks/**'
+      - 'CONTRIBUTING.md'
+
+jobs:
+  repo-first-patch-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Diff against main
+        run: git fetch origin main && git diff origin/main...HEAD > copilot.patch
+
+      - name: Ensure patch applies cleanly
+        run: git apply --check copilot.patch
+
+      - name: Verify hunk context
+        run: |
+          if grep -E '^@@' copilot.patch | grep -vE '^- ' >/dev/null; then
+            echo "ERROR: Patch hunks missing context lines." >&2
+            exit 1
+          fi
